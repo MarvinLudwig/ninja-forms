@@ -31,12 +31,10 @@ class NF_Upgrade_Handler {
             array( 'jquery' )
         );
 
-        $this->admin_page = $this->admin_register_url();
-
         $this->upgrades[] = new NF_Upgrade(
-            'Upgrade Submissions',
-            'index.php?page=nf-upgrades&nf-upgrade=upgrade_subs_to_cpt&step=1',
-            'nf_convert_subs_step'
+            'Upgrade Notifications',
+            'admin.php?page=nf-processing&action=convert_notifications',
+            'nf_convert_notifications_complete'
         );
 
         $this->upgrades[] = new NF_Upgrade(
@@ -46,9 +44,9 @@ class NF_Upgrade_Handler {
         );
 
         $this->upgrades[] = new NF_Upgrade(
-            'Upgrade Notifications',
-            'admin.php?page=nf-processing&action=convert_notifications',
-            'nf_convert_notifications_complete'
+            'Upgrade Submissions',
+            'index.php?page=nf-upgrades&nf-upgrade=upgrade_subs_to_cpt&step=1',
+            'nf_convert_subs_step'
         );
 
         $this->upgrades[] = new NF_Upgrade(
@@ -56,6 +54,8 @@ class NF_Upgrade_Handler {
             'admin.php?page=nf-processing&action=convert_forms',
             'nf_convert_forms_complete'
         );
+
+        $this->admin_page = $this->admin_register_url();
 
         $this->localize();
 
