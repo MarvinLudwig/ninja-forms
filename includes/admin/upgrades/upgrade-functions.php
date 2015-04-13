@@ -409,14 +409,14 @@ function nf_29_update_all_form_settings_check() {
 
 	if ( $forms_conversion_complete )
 		return false;
-	
+
 	$title = urlencode( __( 'Updating Form Database', 'ninja-forms' ) );
-	$url = admin_url( 'index.php?page=nf-processing&action=convert_forms&title=' . $title );
-	
+//	$url = admin_url( 'index.php?page=nf-processing&action=convert_forms&title=' . $title );
+
 	?>
 	<script type="text/javascript">
 		jQuery(document).ready(function() {
-			window.location.href = "<?php echo $url; ?>";
+			window.location.href = "admin.php?page=nf-upgrade";
 		} );
 	</script>
 	<?php
