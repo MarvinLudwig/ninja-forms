@@ -86,7 +86,10 @@ class NF_Convert_Notifications extends NF_Step_Processing {
 		global $ninja_forms_fields;
 
 		// Get our form ID
-		$form_id = $this->args['forms'][ $this->step ];
+        if ( ! isset( $this->args['forms'] ) )  {
+            return;
+        }
+        $form_id = $this->args['forms'][$this->step];
 
 		// Get a list of forms that we've already converted.
 		$completed_forms = get_option( 'nf_convert_notifications_forms', array() );
