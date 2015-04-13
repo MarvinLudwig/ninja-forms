@@ -7,9 +7,12 @@ function NF_Upgrade_Handler() {
 
 class NF_Upgrade_Handler {
 
+    const NF_PROCESSING_URL = 'admin.php?page=nf-processing&action=';
+
     public $admin_page;
 
     private $upgrades;
+
 
     public static function instance()
     {
@@ -22,11 +25,23 @@ class NF_Upgrade_Handler {
     }
 
     private function __construct() {
+
+        wp_register_script(
+            'nf-upgrade',
+            //TODO Minimize Script
+            NF_PLUGIN_URL . 'assets/js/dev/upgrade-handler.js',
+            array( 'jquery' )
+        );
+
         $this->admin_page = $this->admin_register_url();
 
         $this->upgrades[] = new NF_Upgrade( 'Update Email Settings', 'update_email_settings', 'nf_update_email_settings_complete');
         $this->upgrades[] = new NF_Upgrade( 'Convert Notifications', 'convert_notifications', 'nf_convert_notifications_complete');
         $this->upgrades[] = new NF_Upgrade( 'Convert Forms', 'convert_forms', 'nf_convert_forms_complete');
+
+        $this->localize();
+
+        wp_enqueue_script( 'nf-upgrade' );
     }
 
     private function admin_register_url() {
@@ -42,7 +57,7 @@ class NF_Upgrade_Handler {
             'manage_options'
         );
 
-        $menu_slug = 'nf_upgrade';
+        $menu_slug = 'nf-upgrade';
 
         $function = array( $this, 'admin_display_function');
 
@@ -59,13 +74,17 @@ class NF_Upgrade_Handler {
             echo '<ul>[' . ( $upgrade->flag ? '✓' : ' ' ) . '] ' . $upgrade->name . '</ul>';
         }
         echo '</ul>';
-
-        $this->run();
     }
 
-    public function run() {
+    public function localize() {
+
         foreach( $this->upgrades as $upgrade ) {
-            echo $upgrade->action;
+
+            if( ! $upgrade->flag ) {
+                $data['redirect'] = NF_Upgrade_Handler::NF_PROCESSING_URL . $upgrade->action;
+                wp_localize_script( 'nf-upgrade', 'nf_upgrade_run', $data );
+            }
+
         }
     }
 }
