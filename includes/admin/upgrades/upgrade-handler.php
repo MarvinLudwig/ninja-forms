@@ -100,6 +100,7 @@ class NF_Upgrade_Handler {
 
             if( ! $upgrade->flag ) {
                 wp_localize_script( 'nf-upgrade', 'nf_upgrade_run', array( 'redirect' => $upgrade->url ) );
+                return;
             }
 
         }
