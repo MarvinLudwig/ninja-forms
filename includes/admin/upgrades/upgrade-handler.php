@@ -89,7 +89,7 @@ class NF_Upgrade_Handler {
 
         echo '<ul>';
         foreach( $this->upgrades as $upgrade ) {
-            echo '<ul>[' . ( $upgrade->flag ? '✓' : ' ' ) . '] <a href="' . $upgrade->url . '">' . $upgrade->name . '<a/></ul>';
+            echo '<ul>[' . ( $upgrade->flag ? '✓' : ' ' ) . '] <a href="' . $upgrade->url . '">' . $upgrade->name . '</a></ul>';
         }
         echo '</ul>';
     }
