@@ -24,47 +24,79 @@ function nf_show_upgrade_notices() {
 	if ( isset ( $_GET['page'] ) && $_GET['page'] == 'nf-processing' )
 		return; // Don't show notices on the processing page.
 
-	$n_conversion_complete = get_option( 'nf_convert_notifications_complete', false );
 
-	if ( ! $n_conversion_complete ) {
+    //Upgrade Handler
+    if (
+        ( ! get_option( 'nf_convert_notifications_complete', false ) ) ||
+        ( ! get_option( 'nf_update_email_settings_complete', false ) ) ||
+        ( 'complete' != get_option( 'nf_convert_subs_step', false ) ) ||
+        ( ! get_option( 'nf_convert_forms_complete', false ) )
+    ) {
 		printf(
-			'<div class="update-nag"><p>' . __( 'Ninja Forms needs to upgrade your form notifications, click %shere%s to start the upgrade.', 'ninja-forms' ) . '</p></div>',
-			'<a href="' . admin_url( 'index.php?page=nf-processing&action=convert_notifications' ) . '">', '</a>'
+			'<div class="update-nag"><p>' . __( 'Ninja Forms needs to upgrade the database, click %shere%s to start the upgrade.', 'ninja-forms' ) . '</p></div>',
+			'<a href="' . admin_url( 'index.php?page=nf-upgrade' ) . '">', '</a>'
 		);
-	}
+    }
 
-	$update_email_settings_complete = get_option( 'nf_update_email_settings_complete', false );
 
-	if ( $n_conversion_complete && ! $update_email_settings_complete ) {
-		printf(
-			'<div class="update-nag"><p>' . __( 'Ninja Forms needs to update your email settings, click %shere%s to start the upgrade.', 'ninja-forms' ) . '</p></div>',
-			'<a href="' . admin_url( 'index.php?page=nf-processing&action=update_email_settings' ) . '">', '</a>'
-		);
-	}
+    /**
+     * Convert Notifications
+     */
+//	$n_conversion_complete = get_option( 'nf_convert_notifications_complete', false );
+//
+//	if ( ! $n_conversion_complete ) {
+//		printf(
+//			'<div class="update-nag"><p>' . __( 'Ninja Forms needs to upgrade your form notifications, click %shere%s to start the upgrade.', 'ninja-forms' ) . '</p></div>',
+//			'<a href="' . admin_url( 'index.php?page=nf-processing&action=convert_notifications' ) . '">', '</a>'
+//		);
+//	}
 
-	if ( isset( $_GET['page'] ) && $_GET['page'] == 'nf-upgrades' )
-		return; // Don't show notices on the upgrades page
+    /**
+     * Update Email Settings
+     */
+//	$update_email_settings_complete = get_option( 'nf_update_email_settings_complete', false );
+//
+//	if ( $n_conversion_complete && ! $update_email_settings_complete ) {
+//		printf(
+//			'<div class="update-nag"><p>' . __( 'Ninja Forms needs to update your email settings, click %shere%s to start the upgrade.', 'ninja-forms' ) . '</p></div>',
+//			'<a href="' . admin_url( 'index.php?page=nf-processing&action=update_email_settings' ) . '">', '</a>'
+//		);
+//	}
 
-	$step = get_option( 'nf_convert_subs_step' );
+    /**
+     * Update Submissions
+     */
+//	if ( isset( $_GET['page'] ) && $_GET['page'] == 'nf-upgrades' )
+//		return; // Don't show notices on the upgrades page
+//
+//	$step = get_option( 'nf_convert_subs_step' );
+//
+//	if ( $step != 'complete' ) {
+//		if ( empty( $step ) ) {
+//			$step = 1;
+//		}
+//		printf(
+//			'<div class="update-nag"><p>' . __( 'Ninja Forms needs to upgrade the submissions table, click %shere%s to start the upgrade.', 'ninja-forms' ) . '</p></div>',
+//			'<a href="' . admin_url( 'index.php?page=nf-upgrades&nf-upgrade=upgrade_subs_to_cpt&step=' . $step ) . '">', '</a>'
+//		);
+//	}
 
-	if ( $step != 'complete' ) {
-		if ( empty( $step ) ) {
-			$step = 1;
-		}
-		printf(
-			'<div class="update-nag"><p>' . __( 'Ninja Forms needs to upgrade the submissions table, click %shere%s to start the upgrade.', 'ninja-forms' ) . '</p></div>',
-			'<a href="' . admin_url( 'index.php?page=nf-upgrades&nf-upgrade=upgrade_subs_to_cpt&step=' . $step ) . '">', '</a>'
-		);
-	}
 
-	$upgrade_notice = get_option( 'nf_upgrade_notice' );
+    /**
+     * 2.7 Update Notice
+     */
+//	$upgrade_notice = get_option( 'nf_upgrade_notice' );
+//
+//	if ( $upgrade_notice != 'closed' ) {
+//		printf(
+//			'<div class="update-nag"><p>' . __( 'Thank you for updating to version 2.7 of Ninja Forms. Please update any Ninja Forms extensions from ', 'ninja-forms' ) . '<a href="http://ninjaforms.com/your-account/purchases/"</a>ninjaforms.com</a>. <a href="%s">Dismiss this notice</a></p></div>',
+//			add_query_arg( array( 'nf_action' => 'dismiss_upgrade_notice' ) )
+//		);
+//	}
 
-	if ( $upgrade_notice != 'closed' ) {
-		printf(
-			'<div class="update-nag"><p>' . __( 'Thank you for updating to version 2.7 of Ninja Forms. Please update any Ninja Forms extensions from ', 'ninja-forms' ) . '<a href="http://ninjaforms.com/your-account/purchases/"</a>ninjaforms.com</a>. <a href="%s">Dismiss this notice</a></p></div>',
-			add_query_arg( array( 'nf_action' => 'dismiss_upgrade_notice' ) )
-		);
-	}
+    /**
+     * Extensions
+     */
 
 	if ( defined( 'NINJA_FORMS_UPLOADS_VERSION' ) && version_compare( NINJA_FORMS_UPLOADS_VERSION, '1.3.5' ) == -1 ) {
 		echo '<div class="error"><p>' . __( 'Your version of the Ninja Forms File Upload extension isn\'t compatible with version 2.7 of Ninja Forms. It needs to be at least version 1.3.5. Please update this extension at ', 'ninja-forms' ) . '<a href="http://ninjaforms.com/your-account/purchases/"</a>ninjaforms.com</a></p></div>';
@@ -74,15 +106,19 @@ function nf_show_upgrade_notices() {
 		echo '<div class="error"><p>' . __( 'Your version of the Ninja Forms Save Progress extension isn\'t compatible with version 2.7 of Ninja Forms. It needs to be at least version 1.1.3. Please update this extension at ', 'ninja-forms' ) . '<a href="http://ninjaforms.com/your-account/purchases/"</a>ninjaforms.com</a></p></div>';
 	}
 
-	$forms_conversion_complete = get_option( 'nf_convert_forms_complete', false );
 
-	if ( ! $forms_conversion_complete ) {
-		$title = urlencode( __( 'Updating Form Database', 'ninja-forms' ) );
-		printf(
-			'<div class="update-nag">' . __( 'Ninja Forms needs to upgrade your form settings, click %shere%s to start the upgrade.', 'ninja-forms' ) . '</div>',
-			'<a href="' . admin_url( 'index.php?page=nf-processing&action=convert_forms&title=' . $title ) . '">', '</a>'
-		);
-	}
+    /**
+     * Convert Forms
+     */
+//	$forms_conversion_complete = get_option( 'nf_convert_forms_complete', false );
+//
+//	if ( ! $forms_conversion_complete ) {
+//		$title = urlencode( __( 'Updating Form Database', 'ninja-forms' ) );
+//		printf(
+//			'<div class="update-nag">' . __( 'Ninja Forms needs to upgrade your form settings, click %shere%s to start the upgrade.', 'ninja-forms' ) . '</div>',
+//			'<a href="' . admin_url( 'index.php?page=nf-processing&action=convert_forms&title=' . $title ) . '">', '</a>'
+//		);
+//	}
 	
 }
 add_action( 'admin_notices', 'nf_show_upgrade_notices' );
