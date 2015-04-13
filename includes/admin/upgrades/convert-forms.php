@@ -34,7 +34,7 @@ class NF_Convert_Forms extends NF_Step_Processing {
 			'step' 			=> 1,
 		);
 
-		$this->redirect = admin_url( 'admin.php?page=ninja-forms' );
+//		$this->redirect = admin_url( 'admin.php?page=ninja-forms' );
 
 		return $args;
 	}

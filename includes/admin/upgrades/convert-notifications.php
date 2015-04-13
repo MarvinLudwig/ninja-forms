@@ -77,7 +77,7 @@ class NF_Convert_Notifications extends NF_Step_Processing {
 			'step' 			=> 1,
 		);
 
-		$this->redirect = admin_url( 'index.php?page=nf-about' );
+//		$this->redirect = admin_url( 'index.php?page=nf-about' );
 
 		return $args;
 	}

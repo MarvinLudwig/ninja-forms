@@ -57,6 +57,8 @@ class NF_Step_Processing
 		}
 
 		add_action( 'wp_ajax_nf_' . $this->action, array( $this, 'processing' ) );
+
+        $this->redirect = admin_url( 'admin.php?page=nf_upgrade' );
 	}
 
 	/**
