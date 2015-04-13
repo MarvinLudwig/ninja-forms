@@ -7,8 +7,6 @@ function NF_Upgrade_Handler() {
 
 class NF_Upgrade_Handler {
 
-    const NF_PROCESSING_URL = 'admin.php?page=nf-processing&action=';
-
     public $admin_page;
 
     private $upgrades;
@@ -35,9 +33,29 @@ class NF_Upgrade_Handler {
 
         $this->admin_page = $this->admin_register_url();
 
-        $this->upgrades[] = new NF_Upgrade( 'Update Email Settings', 'update_email_settings', 'nf_update_email_settings_complete');
-        $this->upgrades[] = new NF_Upgrade( 'Convert Notifications', 'convert_notifications', 'nf_convert_notifications_complete');
-        $this->upgrades[] = new NF_Upgrade( 'Convert Forms', 'convert_forms', 'nf_convert_forms_complete');
+        $this->upgrades[] = new NF_Upgrade(
+            'Upgrade Submissions',
+            'index.php?page=nf-upgrades&nf-upgrade=upgrade_subs_to_cpt&step=1',
+            'nf_convert_subs_step'
+        );
+
+        $this->upgrades[] = new NF_Upgrade(
+            'Upgrade Email Settings',
+            'admin.php?page=nf-processing&action=update_email_settings',
+            'nf_update_email_settings_complete'
+        );
+
+        $this->upgrades[] = new NF_Upgrade(
+            'Upgrade Notifications',
+            'admin.php?page=nf-processing&action=convert_notifications',
+            'nf_convert_notifications_complete'
+        );
+
+        $this->upgrades[] = new NF_Upgrade(
+            'Upgrade Forms',
+            'admin.php?page=nf-processing&action=convert_forms',
+            'nf_convert_forms_complete'
+        );
 
         $this->localize();
 
@@ -81,8 +99,7 @@ class NF_Upgrade_Handler {
         foreach( $this->upgrades as $upgrade ) {
 
             if( ! $upgrade->flag ) {
-                $data['redirect'] = NF_Upgrade_Handler::NF_PROCESSING_URL . $upgrade->action;
-                wp_localize_script( 'nf-upgrade', 'nf_upgrade_run', $data );
+                wp_localize_script( 'nf-upgrade', 'nf_upgrade_run', array( 'redirect' => $upgrade->url ) );
             }
 
         }
@@ -93,13 +110,13 @@ class NF_Upgrade {
 
     public $name;
 
-    public $action;
+    public $url;
 
     public $flag;
 
-    public function __construct( $name, $action, $option ) {
+    public function __construct( $name, $url, $option ) {
         $this->name = $name;
-        $this->action = $action;
+        $this->url = $url;
         $this->flag = get_option( $option, FALSE);
     }
 }
