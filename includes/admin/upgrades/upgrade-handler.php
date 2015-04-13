@@ -1,5 +1,10 @@
 <?php if ( ! defined( 'ABSPATH' ) ) exit;
 
+add_action( 'admin_menu', 'NF_Upgrade_Handler' );
+function NF_Upgrade_Handler() {
+    return NF_Upgrade_Handler::instance();
+}
+
 class NF_Upgrade_Handler {
 
     public $admin_page;
@@ -19,7 +24,9 @@ class NF_Upgrade_Handler {
     private function __construct() {
         $this->admin_page = $this->admin_register_url();
 
-        $this->upgrades[] = "2.9 Form Conversion";
+        $this->upgrades[] = new NF_Upgrade( 'Update Email Settings', 'update_email_settings', 'nf_update_email_settings_complete');
+        $this->upgrades[] = new NF_Upgrade( 'Convert Notifications', 'convert_notifications', 'nf_convert_notifications_complete');
+        $this->upgrades[] = new NF_Upgrade( 'Convert Forms', 'convert_forms', 'nf_convert_forms_complete');
     }
 
     private function admin_register_url() {
@@ -45,17 +52,37 @@ class NF_Upgrade_Handler {
     public function admin_display_function() {
         echo '<h2>' . __( 'Ninja Forms Upgrade', 'ninja-forms' ) . '<h2>';
 
-        echo '<p>Ninja Forms needs to run the following upgrades.</p>';
+        echo '<p>Ninja Forms needs to run the following upgrades:</p>';
 
         echo '<ul>';
         foreach( $this->upgrades as $upgrade ) {
-            echo '<ul>[ ] ' . $upgrade . '</ul>';
+            echo '<ul>[' . ( $upgrade->flag ? '✓' : ' ' ) . '] ' . $upgrade->name . '</ul>';
         }
         echo '</ul>';
+
+        $this->run();
+    }
+
+    public function run() {
+        foreach( $this->upgrades as $upgrade ) {
+            echo $upgrade->action;
+        }
     }
 }
 
-function NF_Upgrade_Handler() {
-    return NF_Upgrade_Handler::instance();
+class NF_Upgrade {
+
+    public $name;
+
+    public $action;
+
+    public $flag;
+
+    public function __construct( $name, $action, $option ) {
+        $this->name = $name;
+        $this->action = $action;
+        $this->flag = get_option( $option, FALSE);
+    }
 }
-add_action( 'admin_menu', 'NF_Upgrade_Handler' );
+
+
