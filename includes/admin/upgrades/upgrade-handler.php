@@ -34,25 +34,29 @@ class NF_Upgrade_Handler {
         $this->upgrades[] = new NF_Upgrade(
             'Upgrade Submissions',
             'index.php?page=nf-upgrades&nf-upgrade=upgrade_subs_to_cpt&step=1',
-            'nf_convert_subs_step'
+            'nf_convert_subs_step',
+            'complete'
         );
 
         $this->upgrades[] = new NF_Upgrade(
             'Upgrade Notifications',
             'admin.php?page=nf-processing&action=convert_notifications',
-            'nf_convert_notifications_complete'
+            'nf_convert_notifications_complete',
+            1
         );
 
         $this->upgrades[] = new NF_Upgrade(
             'Upgrade Email Settings',
             'admin.php?page=nf-processing&action=update_email_settings',
-            'nf_update_email_settings_complete'
+            'nf_update_email_settings_complete',
+            1
         );
 
         $this->upgrades[] = new NF_Upgrade(
             'Upgrade Forms',
             'admin.php?page=nf-processing&action=convert_forms',
-            'nf_convert_forms_complete'
+            'nf_convert_forms_complete',
+            1
         );
 
         $this->admin_page = $this->admin_register_url();
@@ -98,7 +102,7 @@ class NF_Upgrade_Handler {
 
         foreach( $this->upgrades as $upgrade ) {
 
-            if( ! $upgrade->flag ) {
+            if( $upgrade->complete_value != $upgrade->flag ) {
                 wp_localize_script( 'nf-upgrade', 'nf_upgrade_run', array( 'redirect' => $upgrade->url ) );
                 return;
             }
@@ -115,10 +119,13 @@ class NF_Upgrade {
 
     public $flag;
 
-    public function __construct( $name, $url, $option ) {
+    public $complete_value;
+
+    public function __construct( $name, $url, $option, $complete_value ) {
         $this->name = $name;
         $this->url = $url;
         $this->flag = get_option( $option, FALSE);
+        $this->complete_value = $complete_value;
     }
 }
 
