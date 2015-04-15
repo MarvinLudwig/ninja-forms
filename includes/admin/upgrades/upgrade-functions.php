@@ -422,4 +422,4 @@ function nf_29_update_all_form_settings_check() {
 	<?php
 }
 
-add_action( 'nf_admin_before_form_list', 'nf_29_update_all_form_settings_check' );
+//add_action( 'nf_admin_before_form_list', 'nf_29_update_all_form_settings_check' );
