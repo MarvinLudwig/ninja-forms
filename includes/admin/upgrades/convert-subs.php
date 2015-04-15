@@ -25,76 +25,78 @@ class NF_Convert_Subs extends NF_Step_Processing {
 	}
 
     public function loading() {
+        global $wpdb;
 
+        // Get all our forms
+        $forms = $wpdb->get_results( 'SELECT id FROM ' . NINJA_FORMS_TABLE_NAME, ARRAY_A );
+
+        $x = 1;
+        if ( is_array( $forms ) ) {
+            foreach ( $forms as $form ) {
+                $this->args['forms'][$x] = $form['id'];
+                $x++;
+            }
+        }
+
+        $form_count = count( $forms );
+        $this->total_steps = $form_count;
+
+        if( empty( $this->total_steps ) || $this->total_steps <= 1 ) {
+            $this->total_steps = 1;
+        }
+
+        $args = array(
+            'total_steps' 	=> $this->total_steps,
+            'step' 			=> 1,
+        );
+
+        return $args;
     }
 
     public function step() {
-        $this->step   = isset( $_GET['step'] )  ? absint( $_GET['step'] )  : 1;
-        $total  = isset( $_GET['total'] ) ? absint( $_GET['total'] ) : false;
-        $this->number  = isset( $_GET['custom'] ) ? absint( $_GET['custom'] ) : 1;
+        global $wpdb;
 
-        if ( get_option( 'nf_convert_subs_num' ) ) {
-            $number = get_option( 'nf_convert_subs_num' );
-        }
+        // Get a list of forms that we've already converted.
+        $completed_form_subs = get_option( 'nf_converted_form_subs', array() );
 
-        $form_id  = isset( $_GET['form_id'] ) ? absint( $_GET['form_id'] ) : 0;
+        if ( ! is_array( $completed_form_subs ) )
+            $completed_form_subs = array();
 
-        update_option( 'nf_convert_subs_step', $this->step );
+        // Get our form ID
+        $form_id = $this->args['forms'][ $this->step ];
 
-        $old_sub_count = $this->count_old_subs();
+        // Bail if we've already converted the db for this form.
+        if ( in_array( $form_id, $completed_form_subs ) )
+            return false;
 
-        if( empty( $total ) || $total <= 1 ) {
-            $total = round( ( $old_sub_count / 100 ), 0 ) + 2;
-        }
+        $subs_results = $this->get_old_subs();
 
-        if ( $step <= $total ) {
-            if ($step == 1) {
-                $begin = 0;
-            } else {
-                $begin = ($step - 1) * 100;
-            }
+        if (is_array($subs_results) && !empty($subs_results)) {
 
-            $subs_results = $this->get_old_subs($begin, 100);
+            foreach ($subs_results as $sub) {
+                if ($form_id != $sub['form_id']) {
+                    $form_id = $sub['form_id'];
+                    $number = 1;
+                }
+                $converted = get_option('nf_converted_subs');
+                if (empty($converted))
+                    $converted = array();
 
-            if (is_array($subs_results) && !empty($subs_results)) {
+                if (!in_array($sub['id'], $converted)) {
+                    $this->convert($sub, $number);
 
-                foreach ($subs_results as $sub) {
-                    if ($form_id != $sub['form_id']) {
-                        $form_id = $sub['form_id'];
-                        $number = 1;
-                    }
-                    $converted = get_option('nf_converted_subs');
-                    if (empty($converted))
-                        $converted = array();
-
-                    if (!in_array($sub['id'], $converted)) {
-                        $this->convert($sub, $number);
-
-                        $converted[] = $sub['id'];
-                        update_option('nf_converted_subs', $converted);
-                        $number++;
-                        update_option('nf_convert_subs_num', $number);
-                    }
+                    $converted[] = $sub['id'];
+                    update_option('nf_converted_subs', $converted);
+                    $number++;
+                    update_option('nf_convert_subs_num', $number);
                 }
             }
-
-            $step++;
-
-            $redirect = add_query_arg(array(
-                'page' => 'nf-upgrades',
-                'nf-upgrade' => 'upgrade_subs_to_cpt',
-                'step' => $step,
-                'custom' => $number,
-                'total' => $total,
-                'form_id' => $form_id
-            ), admin_url('index.php'));
-            wp_redirect($redirect);
-            exit;
-        } else {
-            update_option( 'nf_convert_subs_step', 'complete' );
-            delete_option( 'nf_convert_subs_num' );
-            wp_redirect( admin_url( 'admin.php?page=nf-upgrade' ) ); exit;
         }
+    }
+
+    public function complete() {
+        update_option( 'nf_convert_subs_complete', true );
+        delete_option( 'nf_convert_subs_num' );
     }
 
 	/**
@@ -104,15 +106,10 @@ class NF_Convert_Subs extends NF_Step_Processing {
 	 * @access public
 	 * @return $sub_results
 	 */
-	public function get_old_subs( $begin = '', $count = '' ) {
+	public function get_old_subs() {
 		global $wpdb;
 
-		if ( $begin == '' && $count == '' ) {
-			$limit = '';
-		} else {
-			$limit = ' LIMIT ' . $begin . ',' . $count;
-		}
-		$subs_results = $wpdb->get_results( 'SELECT * FROM ' . NINJA_FORMS_SUBS_TABLE_NAME . ' WHERE `action` != "mp_save" ORDER BY `form_id` ASC, `id` ASC ' . $limit, ARRAY_A );
+		$subs_results = $wpdb->get_results( 'SELECT * FROM ' . NINJA_FORMS_SUBS_TABLE_NAME . ' WHERE `action` != "mp_save" ORDER BY `form_id` ASC, `id` ASC ', ARRAY_A );
 		//Now that we have our sub results, let's loop through them and remove any that don't match our args array.
 		if( is_array( $subs_results ) AND ! empty( $subs_results ) ) {
 			foreach( $subs_results as $key => $val ) { //Initiate a loop that will run for all of our submissions.

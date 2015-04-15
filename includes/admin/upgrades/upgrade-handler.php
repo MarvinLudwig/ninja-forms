@@ -33,9 +33,9 @@ class NF_Upgrade_Handler {
 
         $this->upgrades[] = new NF_Upgrade(
             'Upgrade Submissions',
-            'index.php?page=nf-upgrades&nf-upgrade=upgrade_subs_to_cpt&step=1',
-            'nf_convert_subs_step',
-            'complete'
+            'admin.php?page=nf-processing&action=convert_subs',
+            'nf_convert_subs_complete',
+            1
         );
 
         $this->upgrades[] = new NF_Upgrade(
