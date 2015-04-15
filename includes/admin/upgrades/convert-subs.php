@@ -10,7 +10,7 @@
  * @since       2.7
 */
 
-class NF_Convert_Subs {
+class NF_Convert_Subs extends NF_Step_Processing {
 
 	/**
 	 * Get things started
@@ -19,8 +19,83 @@ class NF_Convert_Subs {
 	 * @access public
 	 */
 	public function __construct() {
+        $this->action = 'convert_subs';
 
+        parent::__construct();
 	}
+
+    public function loading() {
+
+    }
+
+    public function step() {
+        $this->step   = isset( $_GET['step'] )  ? absint( $_GET['step'] )  : 1;
+        $total  = isset( $_GET['total'] ) ? absint( $_GET['total'] ) : false;
+        $this->number  = isset( $_GET['custom'] ) ? absint( $_GET['custom'] ) : 1;
+
+        if ( get_option( 'nf_convert_subs_num' ) ) {
+            $number = get_option( 'nf_convert_subs_num' );
+        }
+
+        $form_id  = isset( $_GET['form_id'] ) ? absint( $_GET['form_id'] ) : 0;
+
+        update_option( 'nf_convert_subs_step', $this->step );
+
+        $old_sub_count = $this->count_old_subs();
+
+        if( empty( $total ) || $total <= 1 ) {
+            $total = round( ( $old_sub_count / 100 ), 0 ) + 2;
+        }
+
+        if ( $step <= $total ) {
+            if ($step == 1) {
+                $begin = 0;
+            } else {
+                $begin = ($step - 1) * 100;
+            }
+
+            $subs_results = $this->get_old_subs($begin, 100);
+
+            if (is_array($subs_results) && !empty($subs_results)) {
+
+                foreach ($subs_results as $sub) {
+                    if ($form_id != $sub['form_id']) {
+                        $form_id = $sub['form_id'];
+                        $number = 1;
+                    }
+                    $converted = get_option('nf_converted_subs');
+                    if (empty($converted))
+                        $converted = array();
+
+                    if (!in_array($sub['id'], $converted)) {
+                        $this->convert($sub, $number);
+
+                        $converted[] = $sub['id'];
+                        update_option('nf_converted_subs', $converted);
+                        $number++;
+                        update_option('nf_convert_subs_num', $number);
+                    }
+                }
+            }
+
+            $step++;
+
+            $redirect = add_query_arg(array(
+                'page' => 'nf-upgrades',
+                'nf-upgrade' => 'upgrade_subs_to_cpt',
+                'step' => $step,
+                'custom' => $number,
+                'total' => $total,
+                'form_id' => $form_id
+            ), admin_url('index.php'));
+            wp_redirect($redirect);
+            exit;
+        } else {
+            update_option( 'nf_convert_subs_step', 'complete' );
+            delete_option( 'nf_convert_subs_num' );
+            wp_redirect( admin_url( 'admin.php?page=nf-upgrade' ) ); exit;
+        }
+    }
 
 	/**
 	 * Grab our old submissions
