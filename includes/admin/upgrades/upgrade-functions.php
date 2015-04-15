@@ -29,7 +29,7 @@ function nf_show_upgrade_notices() {
     if (
         ( ! get_option( 'nf_convert_notifications_complete', false ) ) ||
         ( ! get_option( 'nf_update_email_settings_complete', false ) ) ||
-        ( 'complete' != get_option( 'nf_convert_subs_step', false ) ) ||
+        ( ! get_option( 'nf_convert_subs_complete', false ) ) ||
         ( ! get_option( 'nf_convert_forms_complete', false ) )
     ) {
 		printf(
