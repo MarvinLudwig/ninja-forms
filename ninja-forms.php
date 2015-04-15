@@ -130,6 +130,7 @@ class Ninja_Forms {
 			self::$instance->download_all_subs = new NF_Download_All_Subs();
 			self::$instance->convert_notifications = new NF_Convert_Notifications();
 			self::$instance->convert_forms = new NF_Convert_Forms();
+			self::$instance->convert_subs = new NF_Convert_Subs();
 			self::$instance->update_email_settings = new NF_Update_Email_Settings();
 		}
 
