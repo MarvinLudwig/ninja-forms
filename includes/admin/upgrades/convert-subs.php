@@ -27,6 +27,16 @@ class NF_Convert_Subs extends NF_Step_Processing {
     public function loading() {
         global $wpdb;
 
+        // Check that the table exists
+        if( 0 == $wpdb->query( "SHOW TABLES LIKE '" . NINJA_FORMS_SUBS_TABLE_NAME . "'" ) ) {
+            return array('complete' => true);
+        }
+
+        // Check that the table exists
+        if( 0 == $wpdb->query( "SHOW TABLES LIKE '" . NINJA_FORMS_TABLE_NAME . "'" ) ) {
+            return array('complete' => true);
+        }
+
         // Get all our forms
         $forms = $wpdb->get_results( 'SELECT id FROM ' . NINJA_FORMS_TABLE_NAME, ARRAY_A );
 
@@ -71,6 +81,10 @@ class NF_Convert_Subs extends NF_Step_Processing {
 
         $subs_results = $this->get_old_subs();
 
+        if ( ! $subs_results )  {
+            return false;
+        }
+
         if (is_array($subs_results) && !empty($subs_results)) {
 
             foreach ($subs_results as $sub) {
@@ -95,6 +109,7 @@ class NF_Convert_Subs extends NF_Step_Processing {
     }
 
     public function complete() {
+        update_option( 'nf_convert_subs_step', 'complete' );
         update_option( 'nf_convert_subs_complete', true );
         delete_option( 'nf_convert_subs_num' );
     }
@@ -108,6 +123,10 @@ class NF_Convert_Subs extends NF_Step_Processing {
 	 */
 	public function get_old_subs() {
 		global $wpdb;
+
+        // Check that the table exists
+        if( 0 == $wpdb->query( "SHOW TABLES LIKE '" . NINJA_FORMS_SUBS_TABLE_NAME . "'" ) )
+            return false;
 
 		$subs_results = $wpdb->get_results( 'SELECT * FROM ' . NINJA_FORMS_SUBS_TABLE_NAME . ' WHERE `action` != "mp_save" ORDER BY `form_id` ASC, `id` ASC ', ARRAY_A );
 		//Now that we have our sub results, let's loop through them and remove any that don't match our args array.
