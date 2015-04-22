@@ -19,6 +19,8 @@ class NF_Convert_Forms extends NF_Step_Processing {
 		// Get all our forms
 		$forms = $wpdb->get_results( 'SELECT id FROM ' . NINJA_FORMS_TABLE_NAME, ARRAY_A );
 
+        $this->database_setup_2_8();
+
 		$x = 1;
 		if ( is_array( $forms ) ) {
 			foreach ( $forms as $form ) {
