@@ -7,6 +7,8 @@ function NF_Upgrade_Handler() {
 
 class NF_Upgrade_Handler {
 
+    private static $instance;
+
     public $admin_page;
 
     private $upgrades;
@@ -14,12 +16,12 @@ class NF_Upgrade_Handler {
 
     public static function instance()
     {
-        static $instance = null;
-        if (null === $instance) {
-            $instance = new static();
+
+        if ( ! isset( self::$instance ) ) {
+            self::$instance = new NF_Upgrade_Handler();
         }
 
-        return $instance;
+        return self::$instance;
     }
 
     private function __construct() {
