@@ -41,13 +41,6 @@ class NF_Upgrade_Handler {
         );
 
         $this->upgrades[] = new NF_Upgrade(
-            'Upgrade Notifications',
-            'admin.php?page=nf-processing&action=convert_notifications',
-            'nf_convert_notifications_complete',
-            1
-        );
-
-        $this->upgrades[] = new NF_Upgrade(
             'Upgrade Email Settings',
             'admin.php?page=nf-processing&action=update_email_settings',
             'nf_update_email_settings_complete',
@@ -58,6 +51,13 @@ class NF_Upgrade_Handler {
             'Upgrade Forms',
             'admin.php?page=nf-processing&action=convert_forms',
             'nf_convert_forms_complete',
+            1
+        );
+
+        $this->upgrades[] = new NF_Upgrade(
+            'Upgrade Notifications',
+            'admin.php?page=nf-processing&action=convert_notifications',
+            'nf_convert_notifications_complete',
             1
         );
 

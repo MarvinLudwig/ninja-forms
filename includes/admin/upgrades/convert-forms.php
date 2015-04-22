@@ -74,4 +74,47 @@ class NF_Convert_Forms extends NF_Step_Processing {
 		update_option( 'nf_convert_forms_complete', true );
 	}
 
+    public function database_setup_2_8() {
+        /**
+         * Add our table structure for version 2.8.
+         *
+         * Duplicated from the Notification Conversion
+         */
+
+        require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
+
+        // Create our object meta table
+        $sql = "CREATE TABLE IF NOT EXISTS ". NF_OBJECT_META_TABLE_NAME . " (
+		  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+		  `object_id` bigint(20) NOT NULL,
+		  `meta_key` varchar(255) NOT NULL,
+		  `meta_value` longtext NOT NULL,
+		  PRIMARY KEY (`id`)
+		) DEFAULT CHARSET=utf8;";
+
+        dbDelta( $sql );
+
+        // Create our object table
+        $sql = "CREATE TABLE IF NOT EXISTS " . NF_OBJECTS_TABLE_NAME . " (
+		  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+		  `type` varchar(255) NOT NULL,
+		  PRIMARY KEY (`id`)
+		) DEFAULT CHARSET=utf8;";
+
+        dbDelta( $sql );
+
+        // Create our object relationships table
+
+        $sql = "CREATE TABLE IF NOT EXISTS " . NF_OBJECT_RELATIONSHIPS_TABLE_NAME . " (
+		  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+		  `child_id` bigint(20) NOT NULL,
+		  `parent_id` bigint(20) NOT NULL,
+		  `child_type` varchar(255) NOT NULL,
+		  `parent_type` varchar(255) NOT NULL,
+		  PRIMARY KEY (`id`)
+		) DEFAULT CHARSET=utf8;";
+
+        dbDelta( $sql );
+    }
+
 }
