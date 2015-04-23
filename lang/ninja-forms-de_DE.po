@@ -38,7 +38,7 @@ msgstr "Dies ist ein Pflichtfeld"
 # @ ninja-forms
 #: includes/activation.php:180 includes/activation.php:198
 msgid "Please answer the anti-spam question correctly."
-msgstr "Bitte beantworte die Antispam-Frage richtig."
+msgstr "Bitte beantworten Sie die Antispam-Frage richtig. (Groß- und Kleinschreibung beachten.)"
 
 # @ ninja-forms
 #: includes/activation.php:182
